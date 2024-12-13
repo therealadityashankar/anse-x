@@ -2,6 +2,7 @@ import { fetchChatCompletion } from './api'
 import { parseMessageList, parseStream } from './parser'
 import type { Message } from '@/types/message'
 import type { HandlerPayload, Provider } from '@/types/provider'
+import { GenerateContentResult } from '@google/generative-ai'
 
 export const handlePrompt: Provider['handlePrompt'] = async(payload, signal?: AbortSignal) => {
   if (payload.botId === 'chat_continuous')
@@ -17,7 +18,7 @@ export const handleRapidPrompt: Provider['handleRapidPrompt'] = async(prompt, gl
     botId: 'temp',
     globalSettings: {
       ...globalSettings,
-      model: 'gemini-pro',
+      model: 'gemini-2.0-flash-exp',
       temperature: 0.4,
       maxTokens: 10240,
       maxOutputTokens: 1024,
@@ -35,7 +36,6 @@ export const handleRapidPrompt: Provider['handleRapidPrompt'] = async(prompt, gl
 }
 
 export const handleChatCompletion = async(payload: HandlerPayload, signal?: AbortSignal) => {
-  // An array to store the chat messages
   const messages: Message[] = []
 
   let maxTokens = payload.globalSettings.maxTokens as number
@@ -57,31 +57,29 @@ export const handleChatCompletion = async(payload: HandlerPayload, signal?: Abor
   }
 
   const stream = payload.globalSettings.stream as boolean ?? true
-  const response = await fetchChatCompletion({
-    apiKey: payload.globalSettings.apiKey as string,
-    stream,
-    body: {
-      contents: parseMessageList(messages),
-      generationConfig: {
-        temperature: payload.globalSettings.temperature as number,
-        maxOutputTokens: payload.globalSettings.maxOutputTokens as number,
-        topP: payload.globalSettings.topP as number,
-        topK: payload.globalSettings.topK as number,
-      }
-    },
-    signal,
-    model: payload.globalSettings.model as string,
-  })
+  try {
+    const result = await fetchChatCompletion({
+      apiKey: payload.globalSettings.apiKey as string,
+      stream,
+      body: {
+        contents: parseMessageList(messages),
+        generationConfig: {
+          temperature: payload.globalSettings.temperature as number,
+          maxOutputTokens: payload.globalSettings.maxOutputTokens as number,
+          topP: payload.globalSettings.topP as number,
+          topK: payload.globalSettings.topK as number
+        }
+      },
+      signal,
+      model: payload.globalSettings.model as string,
+      schema: payload.schema,
+    })
 
-  if (response.ok) {
     if (stream)
-      return parseStream(response)
-    const json = await response.json()
-    // console.log('json', json)
-    const output = json.candidates[0].content.parts[0].text || json
-    return output as string
+      return parseStream(result)
+    
+    return (result as GenerateContentResult).response.text()
+  } catch (error: any) {
+    throw new Error(`Failed to fetch chat completion: ${error.message}`)
   }
-
-  const text = await response.text()
-  throw new Error(`Failed to fetch chat completion: ${text}`)
 }

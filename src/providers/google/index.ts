@@ -4,6 +4,8 @@ import {
 } from './handler'
 import type { Provider } from '@/types/provider'
 
+console.log('GEMINI_API_KEY', import.meta.env.GEMINI_API_KEY)
+
 const providerGoogle = () => {
   const provider: Provider = {
     id: 'provider-google',
@@ -13,7 +15,7 @@ const providerGoogle = () => {
       {
         key: 'apiKey',
         name: 'API Key',
-        type: 'api-key',
+        type: 'api-key'
       },
       {
         key: 'model',
@@ -21,9 +23,9 @@ const providerGoogle = () => {
         description: 'Custom model for Google API.',
         type: 'select',
         options: [
-          { value: 'gemini-pro', label: 'gemini-pro' },
+          { value: 'gemini-2.0-flash-exp', label: 'gemini-2.0-flash-exp' },
         ],
-        default: 'gemini-pro',
+        default: 'gemini-2.0-flash-exp',
       },
       {
         key: 'maxTokens',

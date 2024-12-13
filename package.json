@@ -18,6 +18,7 @@
     "@astrojs/node": "^5.3.6",
     "@astrojs/solid-js": "^2.2.1",
     "@astrojs/vercel": "^3.8.2",
+    "@google/generative-ai": "^0.21.0",
     "@mapbox/rehype-prism": "^0.8.0",
     "@nanostores/solid": "^0.4.2",
     "@solid-primitives/clipboard": "^1.5.7",

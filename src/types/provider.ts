@@ -1,5 +1,6 @@
 import type { ConversationType } from './conversation'
 import type { Message } from './message'
+import type { ResponseSchema } from '@google/generative-ai'
 
 export interface Provider {
   id: string
@@ -36,6 +37,7 @@ export interface HandlerPayload {
   botSettings: SettingsPayload
   prompt?: string
   messages: Message[]
+  schema: ResponseSchema
 }
 
 export type PromptResponse = string | ReadableStream | null | undefined

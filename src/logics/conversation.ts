@@ -9,6 +9,7 @@ import { generateRapidProviderPayload, promptHelper } from './helper'
 import type { HandlerPayload, PromptResponse } from '@/types/provider'
 import type { Conversation } from '@/types/conversation'
 import type { ErrorMessage, Message } from '@/types/message'
+import { combinedResponseSchema } from '@/schemas/combined'
 
 export const handlePrompt = async(conversation: Conversation, prompt?: string, signal?: AbortSignal) => {
   const generalSettings = getGeneralSettings()
@@ -49,6 +50,7 @@ export const handlePrompt = async(conversation: Conversation, prompt?: string, s
         content: message.content,
       })),
     ],
+    schema: combinedResponseSchema,
   }
   try {
     providerResponse = await getProviderResponse(provider.id, handlerPayload, {

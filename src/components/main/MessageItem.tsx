@@ -18,6 +18,9 @@ interface Props {
   message: MessageInstance
   index: number
   handleStreaming?: () => void
+  actions?: {
+    terminal?: boolean
+  }
 }
 
 export default (props: Props) => {
@@ -65,7 +68,7 @@ export default (props: Props) => {
     const messages = getMessagesByConversationId($currentConversationId())
     messages.forEach((message) => {
       updateMessage($currentConversationId(), message.id, { isSelected: props.message.id === message.id },
-      )
+    )
     })
     showShareModal.set(true)
   }
@@ -105,6 +108,12 @@ export default (props: Props) => {
     user: 'bg-gradient-to-b from-gray-300 via-gray-200 to-gray-300',
     assistant: 'bg-gradient-to-b from-[#fccb90] to-[#d57eeb]',
   }
+
+  const terminalOutput = `drwxr-xr-x  2 user group  4096 Mar 20 10:30 Documents
+drwxr-xr-x  3 user group  4096 Mar 20 10:30 Downloads
+drwxr-xr-x  2 user group  4096 Mar 20 10:30 Pictures
+-rw-r--r--  1 user group  1234 Mar 20 10:30 example.txt
+drwxr-xr-x  4 user group  4096 Mar 20 10:30 projects`
 
   return (
     <div
@@ -164,11 +173,21 @@ export default (props: Props) => {
                 : undefined}
               showRawCode={showRawCode()}
             />
-          </Show>
 
+            <Show when={props.actions?.terminal !== false && props.message.role === 'assistant'}>
+              <div class="mt-4 bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-green-400">$</span>
+                  <span>ls</span>
+                </div>
+                <pre class="whitespace-pre-wrap">{terminalOutput}</pre>
+              </div>
+            </Show>
+          </Show>
         </div>
 
       </div>
+
     </div>
   )
 }
